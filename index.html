@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pexiora Poker Club - Inscription</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #111;
+    color: white;
+    text-align: center;
+}
+.container {
+    max-width: 760px;
+    margin: auto;
+    padding: 18px;
+}
+.logo {
+    width: 180px;
+    max-width: 60vw;
+    margin: 5px 0 12px;
+}
+h1 {
+    color: gold;
+    font-size: clamp(26px, 7vw, 38px);
+    margin: 8px 0;
+}
+.date-tournoi {
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: bold;
+    color: #ffd966;
+    background: #1d1d1d;
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 12px;
+    margin: 12px 0 18px;
+}
+.compteur {
+    font-size: 20px;
+    margin: 10px 0;
+}
+input {
+    padding: 12px;
+    width: min(100%, 420px);
+    margin: 9px 0;
+    border-radius: 7px;
+    border: none;
+    font-size: 17px;
+}
+button {
+    padding: 11px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 15px;
+}
+.inscrire { background: green; color: white; }
+.desinscrire { background: #b51f1f; color: white; }
+.liste {
+    margin-top: 18px;
+    text-align: left;
+    background: #222;
+    padding: 15px;
+    border-radius: 10px;
+    line-height: 1.65;
+}
+.info {
+    color: #aaa;
+    font-size: 13px;
+    margin-top: 10px;
+}
+.admin-btn {
+    margin-top: 26px;
+    background: #444;
+    color: #ddd;
+    font-size: 12px;
+}
+.admin-zone {
+    display: none;
+    margin-top: 20px;
+    text-align: left;
+    background: #171717;
+    border: 1px solid #555;
+    padding: 16px;
+    border-radius: 10px;
+}
+.admin-zone h2 {
+    text-align: center;
+    color: #ffcc66;
+}
+.admin-zone h3 {
+    color: #ff9a9a;
+    margin-top: 24px;
+}
+.admin-row {
+    background: #222;
+    border-radius: 8px;
+    padding: 13px;
+    margin-bottom: 15px;
+}
+.admin-row label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.admin-save { background: #9b6d00; color: white; }
+.admin-close { background: #555; color: white; }
+.admin-logout { background: #7a2020; color: white; }
+.historique {
+    overflow-x: auto;
+    margin-top: 10px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #202020;
+    min-width: 600px;
+}
+th, td {
+    border: 1px solid #555;
+    padding: 8px;
+    vertical-align: top;
+}
+th {
+    background: #333;
+    color: #ffd966;
+    text-align: center;
+}
+td { text-align: left; }
+.date-cell { white-space: nowrap; font-weight: bold; }
+.etat { text-align: center; white-space: nowrap; }
+.en-cours { color: #7CFC98; font-weight: bold; }
+.archive { color: #ccc; }
+.vide { color: #999; font-style: italic; }
+.erreur { color: #ff8a8a; }
+.ok { color: #9cffae; }
+.petit { font-size: 12px; color: #aaa; }
+ol { margin: 5px 0; padding-left: 22px; }
+
+.attente-box {
+    margin-top: 18px;
+    padding: 14px;
+    border: 1px solid #d8b35d;
+    border-radius: 10px;
+    background: #fffaf0;
+}
+.attente-box h3 {
+    margin: 0 0 10px;
+    color: #8a6500;
+}
+.admin-joueur {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #ddd;
+}
+.admin-delete {
+    background: #b51f1f;
+    color: white;
+    padding: 6px 10px;
+    font-size: 0.9rem;
+}
+
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<img src="logo.png" class="logo" alt="Pexiora Poker Club">
+
+<h1>PEXIORA POKER CLUB</h1>
+
+<div class="date-tournoi" id="dateTournoi">Chargement du tournoi…</div>
+
+<div class="compteur" id="compteur">0 / 64 inscrits</div>
+
+<input type="text" id="nom" placeholder="Votre pseudo" autocomplete="nickname">
+
+<br>
+
+<button class="inscrire" id="btnInscrire">Je m'inscris</button>
+<button class="desinscrire" id="btnDesinscrire">Je me désinscris</button>
+
+<div class="liste" id="liste">
+    <span class="vide">Chargement de la liste…</span>
+</div>
+
+<div class="attente-box">
+    <h3>Liste d'attente <span id="compteurAttente">(0)</span></h3>
+    <div id="listeAttente"><span class="vide">Aucun joueur en attente.</span></div>
+</div>
+
+<div class="info" id="message"></div>
+
+<button class="admin-btn" id="btnAdmin">Administration</button>
+
+<div class="admin-zone" id="adminZone">
+
+    <h2>Administration Pexiora</h2>
+
+    <div class="admin-row">
+        <h3 style="margin-top:0; color:#ffd966;">TOURNOI EN COURS</h3>
+        <div style="margin-bottom:8px;">
+            <strong>Date :</strong>
+            <span id="adminTournoiCourant">—</span>
+        </div>
+        <label for="maxJoueursCourant">Capacité du tournoi</label>
+        <input type="number" id="maxJoueursCourant" min="1" max="500" value="64">
+        <span> joueurs</span><br>
+        <button class="admin-save" id="btnSauverMax">Modifier la capacité</button>
+    </div>
+
+    <div class="admin-row">
+        <h3 style="margin-top:0; color:#ffd966;">CRÉER UN NOUVEAU TOURNOI</h3>
+        <label for="nouvelleDate">Date du nouveau tournoi</label>
+        <input type="date" id="nouvelleDate">
+
+        <label for="nouveauMaxJoueurs" style="margin-top:10px;">Capacité du nouveau tournoi</label>
+        <input type="number" id="nouveauMaxJoueurs" min="1" max="500" value="64">
+        <span> joueurs</span><br>
+
+        <button class="admin-save" id="btnNouveauTournoi">Créer le tournoi</button>
+        <div class="petit">
+            Le tournoi actuel sera conservé automatiquement dans l'historique.
+        </div>
+    </div>
+
+    <h3>Joueurs inscrits — gestion administrateur</h3>
+    <div style="margin-bottom:10px;">
+        <button class="admin-save" id="btnImprimerListe">Imprimer la liste des joueurs</button>
+    </div>
+    <div id="listeAdminInscrits"><span class="vide">Aucun.</span></div>
+
+    <h3>Liste d'attente — gestion administrateur</h3>
+    <div id="listeAdminAttente"><span class="vide">Aucun.</span></div>
+
+    <h3>Désinscrits du tournoi en cours</h3>
+    <div id="listeDesinscrits"><span class="vide">Aucun.</span></div>
+
+    <h3>Historique des tournois</h3>
+    <div class="historique" id="historique">
+        <span class="vide">Chargement…</span>
+    </div>
+
+    <div style="text-align:center; margin-top:18px;">
+        <button class="admin-close" id="btnFermerAdmin">Fermer</button>
+        <button class="admin-logout" id="btnDeconnexion">Déconnexion admin</button>
+    </div>
+</div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import {
+    getFirestore, doc, getDoc, setDoc, deleteDoc, addDoc,
+    collection, getDocs, onSnapshot, query, orderBy, limit,
+    writeBatch, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+import {
+    getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+/* =========================================================
+   1) À REMPLACER PAR LA CONFIGURATION DE TON PROJET FIREBASE
+   Firebase > Paramètres du projet > Vos applications > Web
+   ========================================================= */
+const firebaseConfig = {
+    apiKey: "AIzaSyCwoOz7yJlGC-X1x2LulMOb-GmubAIDu2E",
+    authDomain: "pexiora-poker-club.firebaseapp.com",
+    projectId: "pexiora-poker-club",
+    storageBucket: "pexiora-poker-club.firebasestorage.app",
+    messagingSenderId: "461295835905",
+    appId: "1:461295835905:web:f4e5c48acaf6114df91900"
+};
+
+/* =========================================================
+   2) ADRESSE TECHNIQUE DU COMPTE ADMIN DE JULIEN
+   La même adresse doit être utilisée dans Firebase Authentication
+   et dans firestore.rules.
+   ========================================================= */
+const ADMIN_EMAIL = "julien.rode11@gmail.com";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let tournoiIdCourant = null;
+let tournoiDateCourante = "";
+let maxJoueursCourant = 64;
+let joueursCourants = [];
+let stopEcouteJoueurs = null;
+let attenteCourante = [];
+let stopEcouteAttente = null;
+let adminConnecte = false;
+
+const $ = id => document.getElementById(id);
+
+function normaliserPseudo(pseudo) {
+    return pseudo.trim().toLocaleLowerCase("fr-FR")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9_-]/g, "_")
+        .slice(0, 80);
+}
+
+function formaterDate(dateISO) {
+    if (!dateISO) return "—";
+    const [a, m, j] = dateISO.split("-");
+    return `${j}/${m}/${a}`;
+}
+
+function echapperHTML(texte) {
+    return String(texte)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function afficherMessage(texte, type = "") {
+    $("message").className = "info " + type;
+    $("message").textContent = texte;
+}
+
+async function chargerTournoiCourant() {
+    try {
+        const refConfig = doc(db, "config", "app");
+        const snap = await getDoc(refConfig);
+
+        if (!snap.exists() || !snap.data().currentTournamentId) {
+            tournoiIdCourant = null;
+            tournoiDateCourante = "";
+            maxJoueursCourant = 64;
+            $("dateTournoi").textContent = "Aucun tournoi ouvert pour le moment";
+            $("compteur").textContent = "0 / 64 inscrits";
+            $("liste").innerHTML = '<span class="vide">Les inscriptions ne sont pas encore ouvertes.</span>';
+            $("listeAttente").innerHTML = '<span class="vide">Aucun joueur en attente.</span>';
+            $("compteurAttente").textContent = "(0)";
+            return;
+        }
+
+        tournoiIdCourant = snap.data().currentTournamentId;
+
+        const tournoiSnap = await getDoc(doc(db, "tournois", tournoiIdCourant));
+        if (!tournoiSnap.exists()) {
+            throw new Error("Le tournoi courant est introuvable.");
+        }
+
+        tournoiDateCourante = tournoiSnap.data().date || "";
+        maxJoueursCourant = Number(tournoiSnap.data().maxJoueurs) || 64;
+        $("dateTournoi").textContent = "Tournoi du " + formaterDate(tournoiDateCourante);
+        $("adminTournoiCourant").textContent = formaterDate(tournoiDateCourante);
+        $("maxJoueursCourant").value = maxJoueursCourant;
+
+        ecouterJoueurs();
+        ecouterAttente();
+    } catch (e) {
+        console.error(e);
+        afficherMessage("Impossible de charger le tournoi. Vérifie la connexion Internet.", "erreur");
+    }
+}
+
+function ecouterJoueurs() {
+    if (stopEcouteJoueurs) stopEcouteJoueurs();
+    if (!tournoiIdCourant) return;
+
+    const q = query(
+        collection(db, "tournois", tournoiIdCourant, "joueurs"),
+        orderBy("pseudo")
+    );
+
+    stopEcouteJoueurs = onSnapshot(q, snap => {
+        joueursCourants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        $("compteur").textContent = `${joueursCourants.length} / ${maxJoueursCourant} inscrits`;
+
+        if (!joueursCourants.length) {
+            $("liste").innerHTML = '<span class="vide">Aucun joueur inscrit pour le moment.</span>';
+            return;
+        }
+
+        $("liste").innerHTML = joueursCourants
+            .map((j, i) => `${i + 1}. ${echapperHTML(j.pseudo)}<br>`)
+            .join("");
+    }, e => {
+        console.error(e);
+        afficherMessage("La liste des inscrits ne peut pas être chargée.", "erreur");
+    });
+}
+
+
+function ecouterAttente() {
+    if (stopEcouteAttente) stopEcouteAttente();
+    if (!tournoiIdCourant) return;
+
+    const q = query(
+        collection(db, "tournois", tournoiIdCourant, "attente"),
+        orderBy("inscritLe")
+    );
+
+    stopEcouteAttente = onSnapshot(q, snap => {
+        attenteCourante = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        $("compteurAttente").textContent = `(${attenteCourante.length})`;
+
+        if (!attenteCourante.length) {
+            $("listeAttente").innerHTML = '<span class="vide">Aucun joueur en attente.</span>';
+        } else {
+            $("listeAttente").innerHTML = attenteCourante
+                .map((j, i) => `${i + 1}. ${echapperHTML(j.pseudo)}<br>`)
+                .join("");
+        }
+
+        if (adminConnecte) afficherListesAdminCourantes();
+    }, e => {
+        console.error(e);
+        $("listeAttente").innerHTML = '<span class="erreur">Impossible de charger la liste d’attente.</span>';
+    });
+}
+
+async function inscrire() {
+    if (!tournoiIdCourant) {
+        alert("Aucun tournoi n'est ouvert actuellement.");
+        return;
+    }
+
+    const pseudo = $("nom").value.trim();
+    if (!pseudo) {
+        alert("Entre ton pseudo !");
+        return;
+    }
+
+    const idJoueur = normaliserPseudo(pseudo);
+    if (!idJoueur) {
+        alert("Ce pseudo n'est pas valide.");
+        return;
+    }
+
+    if (joueursCourants.some(j => j.id === idJoueur) ||
+        attenteCourante.some(j => j.id === idJoueur)) {
+        alert("Ce pseudo est déjà inscrit ou déjà en liste d'attente.");
+        return;
+    }
+
+    try {
+        if (joueursCourants.length < maxJoueursCourant) {
+            await setDoc(doc(db, "tournois", tournoiIdCourant, "joueurs", idJoueur), {
+                pseudo,
+                inscritLe: serverTimestamp()
+            });
+            afficherMessage("Inscription enregistrée.", "ok");
+        } else {
+            await setDoc(doc(db, "tournois", tournoiIdCourant, "attente", idJoueur), {
+                pseudo,
+                inscritLe: serverTimestamp()
+            });
+            afficherMessage("Le tournoi est complet : vous êtes placé(e) en liste d'attente.", "ok");
+        }
+
+        $("nom").value = "";
+    } catch (e) {
+        console.error(e);
+        afficherMessage("L'inscription n'a pas pu être enregistrée.", "erreur");
+    }
+}
+
+async function promouvoirPremierEnAttente() {
+    if (!tournoiIdCourant) return;
+
+    try {
+        const q = query(
+            collection(db, "tournois", tournoiIdCourant, "attente"),
+            orderBy("inscritLe"),
+            limit(1)
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) return;
+
+        const docAttente = snap.docs[0];
+        const data = docAttente.data();
+
+        const batch = writeBatch(db);
+        batch.delete(docAttente.ref);
+        batch.set(doc(db, "tournois", tournoiIdCourant, "joueurs", docAttente.id), {
+            pseudo: data.pseudo,
+            inscritLe: serverTimestamp()
+        });
+        await batch.commit();
+    } catch (e) {
+        console.error("Promotion liste d'attente impossible :", e);
+    }
+}
+
+async function desinscrire() {
+    if (!tournoiIdCourant) {
+        alert("Aucun tournoi n'est ouvert actuellement.");
+        return;
+    }
+
+    const pseudoSaisi = $("nom").value.trim();
+    if (!pseudoSaisi) {
+        alert("Entre ton pseudo !");
+        return;
+    }
+
+    const id = normaliserPseudo(pseudoSaisi);
+    const joueur = joueursCourants.find(j => j.id === id);
+    const attente = attenteCourante.find(j => j.id === id);
+
+    if (!joueur && !attente) {
+        alert("Ce pseudo n'est ni inscrit ni en liste d'attente.");
+        return;
+    }
+
+    try {
+        const batch = writeBatch(db);
+        const personne = joueur || attente;
+
+        if (joueur) {
+            batch.delete(doc(db, "tournois", tournoiIdCourant, "joueurs", joueur.id));
+        } else {
+            batch.delete(doc(db, "tournois", tournoiIdCourant, "attente", attente.id));
+        }
+
+        const refDesinscription = doc(
+            collection(db, "tournois", tournoiIdCourant, "desinscriptions")
+        );
+        batch.set(refDesinscription, {
+            pseudo: personne.pseudo,
+            desinscritLe: serverTimestamp(),
+            source: "joueur"
+        });
+
+        await batch.commit();
+
+        if (joueur) {
+            await promouvoirPremierEnAttente();
+        }
+
+        $("nom").value = "";
+        afficherMessage(
+            joueur ? "Désinscription enregistrée." : "Retrait de la liste d'attente enregistré.",
+            "ok"
+        );
+    } catch (e) {
+        console.error(e);
+        afficherMessage("La désinscription n'a pas pu être enregistrée.", "erreur");
+    }
+}
+
+async function connexionAdmin() {
+    const code = prompt("Code administrateur :");
+    if (code === null || code === "") return;
+
+    try {
+        await signInWithEmailAndPassword(auth, ADMIN_EMAIL, code);
+    } catch (e) {
+        console.error(e);
+        alert("Code administrateur incorrect.");
+        return;
+    }
+
+    adminConnecte = true;
+    $("adminZone").style.display = "block";
+
+    try {
+        await rafraichirAdministration();
+    } catch (e) {
+        console.error(e);
+        alert("L'accès administrateur est ouvert, mais certaines données n'ont pas pu être chargées.");
+    }
+}
+
+async function rafraichirAdministration() {
+    if (!adminConnecte) return;
+
+    $("adminTournoiCourant").textContent =
+        tournoiDateCourante ? formaterDate(tournoiDateCourante) : "Aucun";
+    $("maxJoueursCourant").value = maxJoueursCourant;
+
+    afficherListesAdminCourantes();
+
+    await Promise.all([
+        afficherDesinscritsCourants(),
+        afficherHistorique()
+    ]);
+}
+
+
+function afficherListesAdminCourantes() {
+    if (!adminConnecte) return;
+
+    if (!joueursCourants.length) {
+        $("listeAdminInscrits").innerHTML = '<span class="vide">Aucun joueur inscrit.</span>';
+    } else {
+        $("listeAdminInscrits").innerHTML = joueursCourants.map((j, i) => `
+            <div class="admin-joueur">
+                <span>${i + 1}. ${echapperHTML(j.pseudo)}</span>
+                <button class="admin-delete" data-type="joueur" data-id="${echapperHTML(j.id)}">Supprimer</button>
+            </div>
+        `).join("");
+    }
+
+    if (!attenteCourante.length) {
+        $("listeAdminAttente").innerHTML = '<span class="vide">Aucun joueur en attente.</span>';
+    } else {
+        $("listeAdminAttente").innerHTML = attenteCourante.map((j, i) => `
+            <div class="admin-joueur">
+                <span>${i + 1}. ${echapperHTML(j.pseudo)}</span>
+                <button class="admin-delete" data-type="attente" data-id="${echapperHTML(j.id)}">Supprimer</button>
+            </div>
+        `).join("");
+    }
+}
+
+async function supprimerParAdmin(type, id) {
+    if (!adminConnecte || !tournoiIdCourant) return;
+
+    const collectionSource = type === "attente" ? attenteCourante : joueursCourants;
+    const personne = collectionSource.find(j => j.id === id);
+    if (!personne) return;
+
+    const texte = type === "attente"
+        ? `Retirer ${personne.pseudo} de la liste d'attente ?`
+        : `Supprimer ${personne.pseudo} de la liste des inscrits ?`;
+
+    if (!confirm(texte)) return;
+
+    try {
+        const batch = writeBatch(db);
+        const sousCollection = type === "attente" ? "attente" : "joueurs";
+        batch.delete(doc(db, "tournois", tournoiIdCourant, sousCollection, id));
+
+        const refDesinscription = doc(
+            collection(db, "tournois", tournoiIdCourant, "desinscriptions")
+        );
+        batch.set(refDesinscription, {
+            pseudo: personne.pseudo,
+            desinscritLe: serverTimestamp(),
+            source: "admin"
+        });
+
+        await batch.commit();
+
+        if (type === "joueur") {
+            await promouvoirPremierEnAttente();
+        }
+
+        await afficherDesinscritsCourants();
+    } catch (e) {
+        console.error(e);
+        alert("Impossible de supprimer ce joueur.");
+    }
+}
+
+async function afficherDesinscritsCourants() {
+    if (!tournoiIdCourant) {
+        $("listeDesinscrits").innerHTML = '<span class="vide">Aucun tournoi en cours.</span>';
+        return;
+    }
+
+    try {
+        const q = query(
+            collection(db, "tournois", tournoiIdCourant, "desinscriptions"),
+            orderBy("desinscritLe", "desc")
+        );
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+            $("listeDesinscrits").innerHTML = '<span class="vide">Aucune désinscription.</span>';
+            return;
+        }
+
+        $("listeDesinscrits").innerHTML =
+            "<ol>" +
+            snap.docs.map(d => {
+                const data = d.data();
+                const note = data.source === "admin" ? " — supprimé par l’administrateur" : "";
+                return `<li>${echapperHTML(data.pseudo)}${note}</li>`;
+            }).join("") +
+            "</ol>";
+    } catch (e) {
+        console.error(e);
+        $("listeDesinscrits").innerHTML =
+            '<span class="erreur">Impossible de charger les désinscriptions.</span>';
+    }
+}
+
+async function afficherHistorique() {
+    try {
+        const qTournois = query(collection(db, "tournois"), orderBy("date", "desc"));
+        const snapTournois = await getDocs(qTournois);
+
+        if (snapTournois.empty) {
+            $("historique").innerHTML = '<span class="vide">Aucun tournoi enregistré.</span>';
+            return;
+        }
+
+        let lignes = "";
+
+        for (const tournoiDoc of snapTournois.docs) {
+            const t = tournoiDoc.data();
+
+            const [snapJoueurs, snapAttente, snapDesinscrits] = await Promise.all([
+                getDocs(query(
+                    collection(db, "tournois", tournoiDoc.id, "joueurs"),
+                    orderBy("pseudo")
+                )),
+                getDocs(query(
+                    collection(db, "tournois", tournoiDoc.id, "attente"),
+                    orderBy("inscritLe")
+                )),
+                getDocs(query(
+                    collection(db, "tournois", tournoiDoc.id, "desinscriptions"),
+                    orderBy("desinscritLe", "desc")
+                ))
+            ]);
+
+            const inscrits = snapJoueurs.docs.map(d => d.data().pseudo);
+            const attente = snapAttente.docs.map(d => d.data().pseudo);
+            const desinscrits = snapDesinscrits.docs.map(d => ({
+                pseudo: d.data().pseudo,
+                source: d.data().source || "joueur"
+            }));
+
+            const listeInscrits = inscrits.length
+                ? "<ol>" + inscrits.map(p => `<li>${echapperHTML(p)}</li>`).join("") + "</ol>"
+                : '<span class="vide">Aucun</span>';
+
+            const listeAttente = attente.length
+                ? "<ol>" + attente.map(p => `<li>${echapperHTML(p)}</li>`).join("") + "</ol>"
+                : '<span class="vide">Aucun</span>';
+
+            const listeDesinscrits = desinscrits.length
+                ? "<ol>" + desinscrits.map(d => `<li>${echapperHTML(d.pseudo)}${d.source === "admin" ? " — admin" : ""}</li>`).join("") + "</ol>"
+                : '<span class="vide">Aucun</span>';
+
+            lignes += `
+                <tr>
+                    <td class="date-cell">${formaterDate(t.date)}</td>
+                    <td class="etat">
+                        <span class="${t.statut === "en_cours" ? "en-cours" : "archive"}">
+                            ${t.statut === "en_cours" ? "En cours" : "Archivé"}
+                        </span>
+                    </td>
+                    <td><strong>${inscrits.length}</strong>${listeInscrits}</td>
+                    <td><strong>${attente.length}</strong>${listeAttente}</td>
+                    <td><strong>${desinscrits.length}</strong>${listeDesinscrits}</td>
+                </tr>
+            `;
+        }
+
+        $("historique").innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>État</th>
+                        <th>Inscrits</th>
+                        <th>Attente</th>
+                        <th>Désinscrits</th>
+                    </tr>
+                </thead>
+                <tbody>${lignes}</tbody>
+            </table>
+        `;
+    } catch (e) {
+        console.error(e);
+        $("historique").innerHTML =
+            '<span class="erreur">Impossible de charger l’historique.</span>';
+    }
+}
+
+
+function imprimerListeJoueurs() {
+    if (!adminConnecte || !tournoiIdCourant) {
+        alert("Aucun tournoi en cours.");
+        return;
+    }
+
+    const inscritsTries = [...joueursCourants].sort((a, b) =>
+        a.pseudo.localeCompare(b.pseudo, "fr", { sensitivity: "base" })
+    );
+
+    const attenteTriee = [...attenteCourante].sort((a, b) =>
+        a.pseudo.localeCompare(b.pseudo, "fr", { sensitivity: "base" })
+    );
+
+    const inscritsHtml = inscritsTries.length
+        ? inscritsTries.map(j =>
+            `<tr><td>${echapperHTML(j.pseudo)}</td></tr>`
+          ).join("")
+        : '<tr><td>Aucun joueur inscrit.</td></tr>';
+
+    const attenteHtml = attenteTriee.length
+        ? `
+            <h2>Liste d'attente (${attenteTriee.length})</h2>
+            <table>
+                <thead><tr><th>Pseudo</th></tr></thead>
+                <tbody>
+                    ${attenteTriee.map(j =>
+                        `<tr><td>${echapperHTML(j.pseudo)}</td></tr>`
+                    ).join("")}
+                </tbody>
+            </table>
+          `
+        : "";
+
+    const fenetre = window.open("", "_blank", "width=800,height=900");
+    if (!fenetre) {
+        alert("Le navigateur a bloqué la fenêtre d'impression.");
+        return;
+    }
+
+    fenetre.document.write(`
+        <!DOCTYPE html>
+        <html lang="fr">
+        <head>
+            <meta charset="UTF-8">
+            <title>Liste des joueurs - Pexiora Poker Club</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #000;
+                    margin: 28px;
+                }
+                .entete {
+                    text-align: center;
+                    margin-bottom: 24px;
+                }
+                .entete img {
+                    width: 120px;
+                    max-height: 120px;
+                    object-fit: contain;
+                    margin-bottom: 8px;
+                }
+                h1 { margin: 4px 0; font-size: 24px; }
+                h2 { margin-top: 26px; font-size: 19px; }
+                .infos {
+                    margin: 10px 0 18px;
+                    font-size: 16px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 8px;
+                }
+                th, td {
+                    border: 1px solid #777;
+                    padding: 7px 9px;
+                    text-align: left;
+                }
+                @media print {
+                    body { margin: 12mm; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="entete">
+                <img src="logo.png" alt="Pexiora Poker Club">
+                <h1>Pexiora Poker Club</h1>
+                <div class="infos">
+                    <strong>Tournoi du ${formaterDate(tournoiDateCourante)}</strong><br>
+                    ${joueursCourants.length} joueur(s) inscrit(s) sur ${maxJoueursCourant} place(s)
+                </div>
+            </div>
+
+            <h2>Liste des joueurs inscrits</h2>
+            <table>
+                <thead><tr><th>Pseudo</th></tr></thead>
+                <tbody>${inscritsHtml}</tbody>
+            </table>
+
+            ${attenteHtml}
+
+            <div class="no-print" style="text-align:center; margin-top:24px;">
+                <button onclick="window.print()" style="font-size:16px; padding:10px 18px;">
+                    Imprimer
+                </button>
+            </div>
+        </body>
+        </html>
+    `);
+
+    fenetre.document.close();
+}
+
+async function sauverMaxJoueurs() {
+    if (!adminConnecte || !tournoiIdCourant) {
+        alert("Aucun tournoi en cours.");
+        return;
+    }
+
+    const valeur = Number($("maxJoueursCourant").value);
+    if (!Number.isInteger(valeur) || valeur < 1 || valeur > 500) {
+        alert("Choisis un nombre de joueurs entre 1 et 500.");
+        return;
+    }
+
+    if (valeur < joueursCourants.length) {
+        alert(`Il y a déjà ${joueursCourants.length} joueur(s) inscrit(s). Le maximum ne peut pas être inférieur à ce nombre.`);
+        return;
+    }
+
+    try {
+        await setDoc(
+            doc(db, "tournois", tournoiIdCourant),
+            { maxJoueurs: valeur },
+            { merge: true }
+        );
+
+        maxJoueursCourant = valeur;
+        $("compteur").textContent = `${joueursCourants.length} / ${maxJoueursCourant} inscrits`;
+        alert("Le nombre maximum de joueurs a été enregistré.");
+    } catch (e) {
+        console.error(e);
+        alert("Impossible d'enregistrer le nombre maximum de joueurs.");
+    }
+}
+
+async function creerNouveauTournoi() {
+    if (!adminConnecte) return;
+
+    const nouvelleDate = $("nouvelleDate").value;
+    const nouveauMaxJoueurs = Number($("nouveauMaxJoueurs").value);
+
+    if (!nouvelleDate) {
+        alert("Choisis la date du prochain tournoi.");
+        return;
+    }
+
+    if (!Number.isInteger(nouveauMaxJoueurs) || nouveauMaxJoueurs < 1 || nouveauMaxJoueurs > 500) {
+        alert("Choisis un nombre maximum de joueurs entre 1 et 500.");
+        return;
+    }
+
+    if (nouvelleDate === tournoiDateCourante) {
+        alert("Cette date est déjà celle du tournoi en cours.");
+        return;
+    }
+
+    const texte = tournoiDateCourante
+        ? `Le tournoi du ${formaterDate(tournoiDateCourante)} sera archivé et le tournoi du ${formaterDate(nouvelleDate)} deviendra le tournoi en cours. Continuer ?`
+        : `Créer le tournoi du ${formaterDate(nouvelleDate)} ?`;
+
+    if (!confirm(texte)) return;
+
+    try {
+        const nouvelId = nouvelleDate;
+        const batch = writeBatch(db);
+
+        if (tournoiIdCourant) {
+            batch.set(
+                doc(db, "tournois", tournoiIdCourant),
+                { statut: "archive" },
+                { merge: true }
+            );
+        }
+
+        batch.set(doc(db, "tournois", nouvelId), {
+            date: nouvelleDate,
+            statut: "en_cours",
+            maxJoueurs: nouveauMaxJoueurs,
+            creeLe: serverTimestamp()
+        }, { merge: true });
+
+        batch.set(doc(db, "config", "app"), {
+            currentTournamentId: nouvelId
+        }, { merge: true });
+
+        await batch.commit();
+
+        if (stopEcouteJoueurs) stopEcouteJoueurs();
+        if (stopEcouteAttente) stopEcouteAttente();
+
+        tournoiIdCourant = nouvelId;
+        tournoiDateCourante = nouvelleDate;
+        maxJoueursCourant = nouveauMaxJoueurs;
+        joueursCourants = [];
+        attenteCourante = [];
+
+        $("nouvelleDate").value = "";
+        $("nouveauMaxJoueurs").value = "64";
+        $("maxJoueursCourant").value = maxJoueursCourant;
+        $("dateTournoi").textContent = "Tournoi du " + formaterDate(nouvelleDate);
+        $("adminTournoiCourant").textContent = formaterDate(nouvelleDate);
+        $("compteur").textContent = `0 / ${maxJoueursCourant} inscrits`;
+
+        ecouterJoueurs();
+        ecouterAttente();
+        await rafraichirAdministration();
+
+        alert("Le nouveau tournoi est ouvert.");
+    } catch (e) {
+        console.error(e);
+        alert("Impossible de créer le tournoi.");
+    }
+}
+
+$("btnInscrire").addEventListener("click", inscrire);
+$("btnDesinscrire").addEventListener("click", desinscrire);
+$("btnAdmin").addEventListener("click", connexionAdmin);
+$("btnImprimerListe").addEventListener("click", imprimerListeJoueurs);
+$("btnSauverMax").addEventListener("click", sauverMaxJoueurs);
+$("btnNouveauTournoi").addEventListener("click", creerNouveauTournoi);
+$("adminZone").addEventListener("click", e => {
+    const btn = e.target.closest(".admin-delete");
+    if (!btn) return;
+    supprimerParAdmin(btn.dataset.type, btn.dataset.id);
+});
+
+$("btnFermerAdmin").addEventListener("click", () => {
+    $("adminZone").style.display = "none";
+});
+$("btnDeconnexion").addEventListener("click", async () => {
+    await signOut(auth);
+    adminConnecte = false;
+    $("adminZone").style.display = "none";
+});
+$("nom").addEventListener("keydown", e => {
+    if (e.key === "Enter") inscrire();
+});
+
+onAuthStateChanged(auth, user => {
+    adminConnecte = !!(user && user.email === ADMIN_EMAIL);
+});
+
+chargerTournoiCourant();
+</script>
+</body>
+</html>
