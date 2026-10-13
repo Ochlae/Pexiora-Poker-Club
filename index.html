@@ -1002,6 +1002,35 @@ async function sauverDateTournoiCourant() {
     }
 }
 
+// Transfère dans l'ordre d'attente autant de joueurs que de places disponibles.
+// Cette opération est réservée à l'administrateur.
+async function promouvoirAttentePlacesLibres() {
+    if (!adminConnecte || !tournoiIdCourant) return 0;
+
+    // Relire les inscrits dans Firebase pour ne pas se fier à un affichage en retard.
+    const inscritsSnap = await getDocs(collection(db, "tournois", tournoiIdCourant, "joueurs"));
+    const placesLibres = Math.max(0, maxJoueursCourant - inscritsSnap.size);
+    if (placesLibres === 0) return 0;
+
+    const attenteSnap = await getDocs(query(
+        collection(db, "tournois", tournoiIdCourant, "attente"),
+        orderBy("inscritLe"),
+        limit(placesLibres)
+    ));
+    if (attenteSnap.empty) return 0;
+
+    const batch = writeBatch(db);
+    attenteSnap.docs.forEach(joueur => {
+        batch.set(doc(db, "tournois", tournoiIdCourant, "joueurs", joueur.id), {
+            pseudo: joueur.data().pseudo,
+            inscritLe: joueur.data().inscritLe || serverTimestamp()
+        });
+        batch.delete(joueur.ref);
+    });
+    await batch.commit();
+    return attenteSnap.size;
+}
+
 async function sauverMaxJoueurs() {
     if (!adminConnecte || !tournoiIdCourant) {
         alert("Aucun tournoi en cours.");
@@ -1028,7 +1057,16 @@ async function sauverMaxJoueurs() {
 
         maxJoueursCourant = valeur;
         $("compteur").textContent = `${joueursCourants.length} / ${maxJoueursCourant} inscrits`;
-        alert("Le nombre maximum de joueurs a été enregistré.");
+
+        let promus = 0;
+        try {
+            promus = await promouvoirAttentePlacesLibres();
+        } catch (erreurPromotion) {
+            console.error("Capacité modifiée, mais promotion impossible :", erreurPromotion);
+            alert("La capacité a été enregistrée, mais le transfert de la liste d'attente a échoué. Réessaie de valider la capacité ou contacte l'administrateur.");
+            return;
+        }
+        alert(`Capacité enregistrée : ${valeur} places. ${promus} joueur(s) transféré(s) depuis la liste d'attente.`);
     } catch (e) {
         console.error(e);
         alert("Impossible d'enregistrer le nombre maximum de joueurs.");
